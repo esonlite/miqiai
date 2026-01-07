@@ -5,58 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miqi AI - 免费AI智能PPT生成器</title>
     <link rel="stylesheet" href="style.css">
-    <!-- SEO优化 -->
-    <meta name="description" content="Miqi AI - 一句话生成顶级PPT，完全免费，三层AI智能体架构">
-    <meta name="keywords" content="AI PPT, 智能PPT生成, 免费PPT工具, Miqi AI">
 </head>
 <body>
-    <!-- 顶部 Banner -->
     <header class="banner">
         <div class="banner-content">
             <img src="images/logo.png" alt="Miqi AI" class="logo" onerror="this.style.display='none'">
-            <div class="version-badge">v2.2.0</div>
-            <p class="subtitle">💡 一句话生成顶级PPT  |  完全免费  |  三层AI智能体架构</p>
+            <div class="version-badge">v3.0.0</div>
+            <p class="subtitle">💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
             <div class="status-indicator">
-                <span class="status-dot ready" id="statusDot"></span>
-                <span class="status-text" id="statusText">正在连接...</span>
+                <span class="status-dot" id="statusDot"></span>
+                <span class="status-text" id="statusText">连接中...</span>
             </div>
         </div>
     </header>
 
-    <!-- 主内容 -->
     <main class="container">
-        <!-- 输入卡片 -->
-        <section class="card input-card">
+        <section class="card">
             <div class="card-header">
                 <h2>📋 描述你的PPT需求</h2>
-                <p class="tip">💡 提示：越详细效果越好（主题、受众、风格、页数等）</p>
+                <p class="tip">💡 越详细效果越好（主题、受众、风格、页数）</p>
             </div>
             <div class="card-body">
-                <textarea 
-                    id="userInput" 
-                    class="input-textarea" 
-                    placeholder="例如：做一个介绍AI发展史的PPT，给大学生看，要生动有趣，15页左右"
-                    rows="4"
-                ></textarea>
+                <textarea id="userInput" class="input-textarea" 
+                    placeholder="例如：做一个介绍AI发展史的PPT，包含市场数据表格，给大学生看，15页" 
+                    rows="4"></textarea>
                 
-                <!-- 快速模板 -->
                 <div class="templates">
                     <span class="templates-label">⚡ 快速模板：</span>
-                    <button class="template-btn" data-template="做一个新产品发布会PPT，给投资人和媒体看，要专业大气，15页左右">💼 产品发布</button>
-                    <button class="template-btn" data-template="做一个创业融资路演PPT，讲清商业模式和团队优势，12页">🚀 创业路演</button>
-                    <button class="template-btn" data-template="做公司2024年终总结汇报，包含数据和成果展示，严肃专业风格">📊 年终总结</button>
+                    <button class="template-btn" data-template="做一个新产品发布会PPT，包含市场数据对比表格，给投资人看，15页">💼 产品发布</button>
+                    <button class="template-btn" data-template="做一个创业融资路演PPT，包含收入增长数据图表，12页">🚀 创业路演</button>
+                    <button class="template-btn" data-template="做公司2024年终总结，包含业绩对比表格，专业风格">📊 年终总结</button>
                     <button class="template-btn" data-template="给大学生做AI发展史教学PPT，要生动有趣，配图建议详细，15页">🎓 教学课件</button>
                 </div>
             </div>
         </section>
 
-        <!-- 生成按钮 -->
         <button id="generateBtn" class="generate-btn">
-            🎯 立即生成PPT（Miqi AI 三层智能体）
+            🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）
         </button>
 
-        <!-- 进度卡片 -->
-        <section class="card progress-card">
+        <section class="card">
             <div class="card-header">
                 <h2>📊 生成进度</h2>
             </div>
@@ -65,22 +53,22 @@
                     <div id="progressFill" class="progress-fill"></div>
                 </div>
                 <div class="progress-info">
-                    <span id="progressIcon" class="progress-icon">⏸️</span>
-                    <span id="progressText" class="progress-text">等待输入...</span>
-                    <span id="progressPercent" class="progress-percent">0%</span>
+                    <span id="progressIcon">⏸️</span>
+                    <span id="progressText">等待输入...</span>
+                    <span id="progressPercent">0%</span>
                 </div>
             </div>
         </section>
 
-        <!-- 预览卡片 -->
         <section class="card preview-card">
             <div class="card-header">
                 <h2>📄 生成预览</h2>
                 <div class="toolbar">
-                    <span id="fileInfo" class="file-info">未生成文件</span>
+                    <span id="fileInfo" class="file-info">未生成</span>
                     <div class="toolbar-buttons">
                         <button id="copyBtn" class="toolbar-btn" disabled>📋 复制</button>
-                        <button id="downloadBtn" class="toolbar-btn" disabled>💾 下载</button>
+                        <button id="downloadMdBtn" class="toolbar-btn" disabled>💾 下载MD</button>
+                        <button id="downloadPptxBtn" class="toolbar-btn pptx-btn" disabled>🎯 下载PPTX</button>
                     </div>
                 </div>
             </div>
@@ -90,11 +78,10 @@
         </section>
     </main>
 
-    <!-- 底部栏 -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-left">
-                <button class="footer-btn" onclick="window.location.reload()">🔄 刷新页面</button>
+                <button class="footer-btn" onclick="location.reload()">🔄 刷新</button>
                 <button class="footer-btn" onclick="clearAll()">🗑️ 清空</button>
             </div>
             <div class="footer-right">
@@ -102,10 +89,9 @@
                 <button class="footer-btn" onclick="showHelp()">❓ 帮助</button>
             </div>
         </div>
-        <div class="developer-info">© 2026 Miqi AI Inc. by 蕊蕊是乔麦的小宝贝</div>
+        <div class="developer-info">💝 蕊蕊是乔麦的小宝贝</div>
     </footer>
 
-    <!-- 模态框 -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal()">&times;</span>
@@ -113,12 +99,9 @@
         </div>
     </div>
 
-    <!-- 配置API地址 -->
     <script>
-      
-        const API_BASE_URL = 'https://miqi-ai-api.onrender.com';  
+        const API_BASE_URL = 'https://miqi-ai-api.onrender.com';  // 改成你的后端地址
     </script>
-    
     <script src="main.js"></script>
 </body>
 </html>
