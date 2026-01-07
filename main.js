@@ -128,11 +128,18 @@ function onGenerateComplete(result) {
     generateBtn.disabled = false;
     generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 三层智能体）';
     
-    showNotification(
-        '🎉 生成成功',
-        `《${result.title}》已生成！\n\n点击【📋 复制】按钮粘贴到 WPS AI`,
-        'success'
-    );
+     let message = `《${result.title}》已生成！\n\n`;
+    
+    if (result.has_pptx) {
+        message += '✅ Markdown 文件\n';
+        message += '✅ 精美 PPTX 文件\n';
+        message += '   └─ 🖼️ 自动配图（Unsplash）\n';
+        message += '   └─ 📊 智能图表（Matplotlib）\n';
+        message += '   └─ 🎨 专业排版\n\n';
+        message += '点击【🎯 下载PPTX】按钮直接使用！';
+    }
+    
+    showNotification('🎉 生成成功', message, 'success');
 }
 
 // 生成失败
@@ -301,3 +308,4 @@ window.onclick = function(event) {
 function showNotification(title, message, type = 'info') {
     alert(`${title}\n\n${message}`);
 }
+
