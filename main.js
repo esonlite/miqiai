@@ -7,9 +7,13 @@ let currentContent = null;
 // 页面加载
 document.addEventListener('DOMContentLoaded', function() {
     // 绑定事件
-    document.getElementById('generateBtn').addEventListener('click', generatePPT);
-    document.getElementById('copyBtn').addEventListener('click', copyContent);
-    document.getElementById('downloadBtn').addEventListener('click', downloadFile);
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    if (generateBtn) generateBtn.addEventListener('click', generatePPT);
+    if (copyBtn) copyBtn.addEventListener('click', copyContent);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadFile);
     
     // 快速模板
     document.querySelectorAll('.template-btn').forEach(btn => {
