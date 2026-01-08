@@ -64,7 +64,7 @@ async function generatePPT() {
     generateBtn.textContent = '⏳ 正在生成中...';
     
     updateProgress('准备开始...', 0, '⏸️');
-    document.getElementById('outputPreview').textContent = '✨ Miqi AI 三层智能体正在工作...\n';
+    document.getElementById('outputPreview').textContent = '✨ Miqi AI 四层智能体正在工作...\n';
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/generate`, {
@@ -88,7 +88,7 @@ async function generatePPT() {
     } catch (error) {
         showNotification('错误', `生成失败: ${error.message}`, 'error');
         generateBtn.disabled = false;
-        generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 三层智能体）';
+        generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体）';
     }
 }
 
@@ -130,7 +130,7 @@ function onGenerateComplete(result) {
     
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.disabled = false;
-    generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 三层智能体）';
+    generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体）';
     
      let message = `《${result.title}》已生成！\n\n`;
     
@@ -152,7 +152,7 @@ function onGenerateFailed(error) {
     
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.disabled = false;
-    generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 三层智能体）';
+    generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体）';
 }
 
 // 更新进度
@@ -238,7 +238,7 @@ function showAbout() {
             <h2 style="color: var(--primary); margin-bottom: 10px;">Miqi AI</h2>
             <p style="color: var(--text-secondary); margin-bottom: 15px;">版本 2.2.0</p>
             <p style="margin-bottom: 15px;">一句话生成顶级PPT</p>
-            <p style="color: var(--text-secondary); font-size: 14px;">完全免费 | 三层AI智能体</p>
+            <p style="color: var(--text-secondary); font-size: 14px;">完全免费 | 四层AI智能体</p>
             
             <div style="margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #FD79A8 0%, #F093FB 100%); border-radius: 8px;">
                 <p style="color: white; font-size: 16px; font-weight: bold;">💝 蕊蕊是乔麦的小宝贝</p>
