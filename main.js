@@ -4,7 +4,7 @@ let currentTaskId = null;
 let currentFilename = null;
 let currentContent = '';
 
-const API_BASE_URL = 'https://web-production-73c85.up.railway.app';
+
 
 // ========== 工具函数 ==========
 function showNotification(title, message, type = 'info') {
