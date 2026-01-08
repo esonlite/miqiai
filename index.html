@@ -10,7 +10,7 @@
     <header class="banner">
         <div class="banner-content">
             <img src="images/logo.png" alt="Miqi AI" class="logo" onerror="this.style.display='none'">
-            <div class="version-badge">v3.0.0</div>
+            <div class="version-badge">v3.1.0</div> <!-- ✅ 更新版本号 -->
             <p class="subtitle">💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
             <div class="status-indicator">
                 <span class="status-dot" id="statusDot"></span>
@@ -66,6 +66,7 @@
                 <div class="toolbar">
                     <span id="fileInfo" class="file-info">未生成</span>
                     <div class="toolbar-buttons">
+                        <!-- ✅ 按钮保留，由 JS 控制启用/禁用 -->
                         <button id="copyBtn" class="toolbar-btn" disabled>📋 复制</button>
                         <button id="downloadMdBtn" class="toolbar-btn" disabled>💾 下载MD</button>
                         <button id="downloadPptxBtn" class="toolbar-btn pptx-btn" disabled>🎯 下载PPTX</button>
@@ -99,8 +100,10 @@
         </div>
     </div>
 
+    <!-- ✅ 明确 API 地址（确保与后端一致） -->
     <script>
-        const API_BASE_URL = 'https://web-production-73c85.up.railway.app';  
+        // 后端 FastAPI 地址（无状态内存版）
+        const API_BASE_URL = 'https://web-production-73c85.up.railway.app';
     </script>
     <script src="main.js"></script>
 </body>
