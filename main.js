@@ -1,14 +1,11 @@
-// main.js - Miqi AI PPT Generator (v3.0.0)
-// Miqi AI Web 前端（连接远程API）
+// main.js - Miqi AI PPT Generator (v3.0.0) - 最终修复版
 let currentTaskId = null;
 let currentFilename = null;
 let currentContent = '';
 
 
-
 // ========== 工具函数 ==========
 function showNotification(title, message, type = 'info') {
-    // 简易通知（可替换为 Toast 库）
     alert(`${title}\n\n${message}`);
 }
 
@@ -22,7 +19,7 @@ function showAbout() {
         <p>💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
         <p>版本：v3.0.0</p>
         <p>技术栈：Flask + JavaScript + python-pptx + AI Agents</p>
-        <p>开发者：乔麦 & 蕊蕊 💝</p>
+        <p>开发者：乔麦</p>
     `;
     document.getElementById('modal').style.display = 'block';
 }
@@ -104,31 +101,24 @@ async function loadMarkdownContent(filename) {
         console.warn('无法加载 Markdown 预览内容:', error);
         document.getElementById('outputPreview').textContent = 
             '✅ 生成成功！但无法加载预览内容。\n请直接下载文件使用。';
-        document.getElementById('copy')(btn).disabled = true;
+        document.getElementById('copyBtn').disabled = true;
     }
 }
 
 function onGenerateComplete(result) {
-    // 更新文件信息
     document.getElementById('fileInfo').textContent = `📄 ${result.title || 'PPT'} 已生成`;
     document.getElementById('fileInfo').style.color = 'var(--success)';
     
-    // 加载 Markdown 内容用于预览和复制
     loadMarkdownContent(result.md_filename);
-    
-    // 保存文件名
     currentFilename = result.md_filename;
 
-    // 启用下载按钮
     document.getElementById('downloadMdBtn').disabled = false;
     document.getElementById('downloadPptxBtn').disabled = !result.has_pptx;
 
-    // 恢复生成按钮
     const generateBtn = document.getElementById('generateBtn');
     generateBtn.disabled = false;
     generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）';
 
-    // 通知用户
     let message = `《${result.title}》已生成！\n\n`;
     if (result.has_pptx) {
         message += '✅ Markdown 文件\n✅ 精美 PPTX 文件（含配图+图表）\n\n点击【🎯 下载PPTX】使用！';
@@ -153,17 +143,13 @@ async function pollTaskStatus() {
             const response = await fetch(`${API_BASE_URL}/api/task/${currentTaskId}`);
             const data = await response.json();
 
-            // ✅ 关键修复：使用 data.status 而不是 data.message
             const icon = getProgressIcon(data.status);
             updateProgress(data.status, data.progress, icon);
 
-            // 判断完成
             if (data.status && data.status.includes('✅ 生成完成')) {
                 clearInterval(interval);
                 onGenerateComplete(data.result);
-            }
-            // 判断失败
-            else if (data.error) {
+            } else if (data.error) {
                 clearInterval(interval);
                 onGenerateFailed(data.error);
             }
@@ -173,13 +159,24 @@ async function pollTaskStatus() {
             console.error('轮询失败:', error);
             onGenerateFailed('网络错误，请重试');
         }
-    }, 800); // 每 800ms 轮询一次
+    }, 800);
 }
 
+// ========== 关键：启动生成（带完整错误处理） ==========
 async function startGeneration() {
-    const input = document.getElementById('userInput').value.trim();
-    if (!input) {
+    const inputElement = document.getElementById('userInput');
+    const rawInput = inputElement.value;
+    const input = rawInput.trim();
+
+    // 🔒 前端强校验
+    if (input.length === 0) {
         showNotification('⚠️ 输入为空', '请输入你的PPT需求描述！');
+        inputElement.focus();
+        return;
+    }
+    if (input.length < 5) {
+        showNotification('⚠️ 输入太短', '请至少输入 5 个字，例如：“做一个AI介绍PPT”');
+        inputElement.focus();
         return;
     }
 
@@ -197,36 +194,53 @@ async function startGeneration() {
             body: JSON.stringify({ prompt: input })
         });
 
+        // ✅ 关键：检查 HTTP 状态码
+        if (!response.ok) {
+            // 尝试解析错误信息
+            let errorMsg = '请求失败，请稍后重试';
+            try {
+                const errData = await response.json();
+                errorMsg = errData.error || errData.message || errorMsg;
+            } catch (e) {
+                // 如果无法解析 JSON，保留默认消息
+            }
+            throw new Error(errorMsg);
+        }
+
+        // 正常响应（2xx）
         const data = await response.json();
         if (!data.task_id) {
-            throw new Error(data.error || '未知错误');
+            // 兼容旧版后端（返回 200 但带 error 字段）
+            const errorMsg = data.error || data.message || '未知错误';
+            throw new Error(errorMsg);
         }
 
         currentTaskId = data.task_id;
         updateProgress('任务已提交，正在排队...', 5, '⏳');
-        pollTaskStatus(); // 开始轮询
+        pollTaskStatus();
 
     } catch (error) {
-        console.error('启动生成失败:', error);
+        // ❌ 统一错误处理
+        console.warn('启动生成失败:', error.message); // 改为 warn，避免红色 error
         generateBtn.disabled = false;
         generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）';
-        showNotification('❌ 启动失败', error.message || '请检查网络或稍后重试', 'error');
+        showNotification('❌ 启动失败', error.message, 'error');
     }
 }
 
 // ========== 事件绑定 ==========
 document.addEventListener('DOMContentLoaded', () => {
-    // 快速模板按钮
+    // 快速模板
     document.querySelectorAll('.template-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.getElementById('userInput').value = btn.dataset.template;
         });
     });
 
-    // 生成按钮
+    // 主按钮
     document.getElementById('generateBtn').addEventListener('click', startGeneration);
 
-    // 复制按钮
+    // 复制
     document.getElementById('copyBtn').addEventListener('click', () => {
         if (currentContent) {
             navigator.clipboard.writeText(currentContent).then(() => {
@@ -252,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 初始化状态指示器（可选）
+    // 服务状态检测
     const statusDot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
     fetch(`${API_BASE_URL}/health`)
