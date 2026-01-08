@@ -1,8 +1,7 @@
-// main.js - Miqi AI PPT Generator (v3.0.0) - 最终修复版
+// main.js - Miqi AI PPT Generator (v3.0.1) - 修复版：补全 pollTaskStatus 逻辑
 let currentTaskId = null;
 let currentFilename = null;
 let currentContent = '';
-
 
 // ========== 工具函数 ==========
 function showNotification(title, message, type = 'info') {
@@ -17,7 +16,7 @@ function showAbout() {
     document.getElementById('modalBody').innerHTML = `
         <h3>关于 Miqi AI</h3>
         <p>💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
-        <p>版本：v3.0.0</p>
+        <p>版本：v3.0.1</p>
         <p>技术栈：Flask + JavaScript + python-pptx + AI Agents</p>
         <p>开发者：乔麦</p>
     `;
@@ -137,7 +136,7 @@ function onGenerateFailed(error) {
     showNotification('❌ 生成失败', error, 'error');
 }
 
-// 在 pollTaskStatus 开头加保护
+// ========== ✅ 修复：完整的任务轮询逻辑 ==========
 async function pollTaskStatus() {
     if (!currentTaskId) {
         console.warn('轮询被阻止：currentTaskId 为空');
@@ -147,14 +146,41 @@ async function pollTaskStatus() {
     const interval = setInterval(async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/task/${currentTaskId}`);
+            
             if (response.status === 404) {
                 clearInterval(interval);
                 onGenerateFailed('任务已过期或服务器重启，请重新生成');
                 return;
             }
-            // ...其余逻辑
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // 更新进度条
+            const icon = getProgressIcon(data.status);
+            updateProgress(data.status, data.progress, icon);
+
+            // 检查是否完成
+            if (data.result) {
+                clearInterval(interval);
+                onGenerateComplete(data.result);
+            } else if (data.error) {
+                clearInterval(interval);
+                onGenerateFailed(data.error);
+            }
+
+            // 兜底：状态文本包含失败关键词
+            if (data.status && (data.status.includes('❌') || data.status.includes('失败'))) {
+                clearInterval(interval);
+                onGenerateFailed(data.status.replace('❌ ', ''));
+            }
+
         } catch (error) {
-            // ...
+            console.warn('轮询出错（将重试）:', error.message || error);
+            // 继续轮询，不中断
         }
     }, 800);
 }
@@ -165,7 +191,13 @@ async function startGeneration() {
     const rawInput = inputElement.value;
     const input = rawInput.trim();
 
-    // 🔒 前端强校验
+    // 🔒 防重复点击
+    if (currentTaskId) {
+        showNotification('⚠️ 任务进行中', '请等待当前任务完成或点击【清空】后重试。');
+        return;
+    }
+
+    // 前端强校验
     if (input.length === 0) {
         showNotification('⚠️ 输入为空', '请输入你的PPT需求描述！');
         inputElement.focus();
@@ -191,29 +223,28 @@ async function startGeneration() {
             body: JSON.stringify({ prompt: input })
         });
 
-        // ✅ 关键：检查 HTTP 状态码
         if (!response.ok) {
-            // 尝试解析错误信息
             let errorMsg = '请求失败，请稍后重试';
             try {
                 const errData = await response.json();
                 errorMsg = errData.error || errData.message || errorMsg;
             } catch (e) {
-                // 如果无法解析 JSON，保留默认消息
+                // ignore
             }
             throw new Error(errorMsg);
         }
 
         const data = await response.json();
         if (!data.task_id) {
-            throw new Error(data.error || '未知错误');
+            throw new Error(data.error || '未知错误：未返回任务ID');
         }
-        currentTaskId = data.task_id; // ✅ 确保赋值后再轮询
-        pollTaskStatus();
+
+        currentTaskId = data.task_id;
+        console.log('✅ 新任务ID:', currentTaskId); // 调试用
+        pollTaskStatus(); // 启动轮询
 
     } catch (error) {
-        // ❌ 统一错误处理
-        console.warn('启动生成失败:', error.message); // 改为 warn，避免红色 error
+        console.warn('启动生成失败:', error.message);
         generateBtn.disabled = false;
         generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）';
         showNotification('❌ 启动失败', error.message, 'error');
