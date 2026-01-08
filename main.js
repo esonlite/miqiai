@@ -137,27 +137,24 @@ function onGenerateFailed(error) {
     showNotification('❌ 生成失败', error, 'error');
 }
 
+// 在 pollTaskStatus 开头加保护
 async function pollTaskStatus() {
+    if (!currentTaskId) {
+        console.warn('轮询被阻止：currentTaskId 为空');
+        return;
+    }
+
     const interval = setInterval(async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/task/${currentTaskId}`);
-            const data = await response.json();
-
-            const icon = getProgressIcon(data.status);
-            updateProgress(data.status, data.progress, icon);
-
-            if (data.status && data.status.includes('✅ 生成完成')) {
+            if (response.status === 404) {
                 clearInterval(interval);
-                onGenerateComplete(data.result);
-            } else if (data.error) {
-                clearInterval(interval);
-                onGenerateFailed(data.error);
+                onGenerateFailed('任务已过期或服务器重启，请重新生成');
+                return;
             }
-
+            // ...其余逻辑
         } catch (error) {
-            clearInterval(interval);
-            console.error('轮询失败:', error);
-            onGenerateFailed('网络错误，请重试');
+            // ...
         }
     }, 800);
 }
@@ -207,16 +204,11 @@ async function startGeneration() {
             throw new Error(errorMsg);
         }
 
-        // 正常响应（2xx）
         const data = await response.json();
         if (!data.task_id) {
-            // 兼容旧版后端（返回 200 但带 error 字段）
-            const errorMsg = data.error || data.message || '未知错误';
-            throw new Error(errorMsg);
+            throw new Error(data.error || '未知错误');
         }
-
-        currentTaskId = data.task_id;
-        updateProgress('任务已提交，正在排队...', 5, '⏳');
+        currentTaskId = data.task_id; // ✅ 确保赋值后再轮询
         pollTaskStatus();
 
     } catch (error) {
