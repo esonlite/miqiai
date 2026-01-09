@@ -8,6 +8,8 @@
     --success: #00B894;
     --danger: #FF7675;
     --accent: #FD79A8;
+    --kimi: #FF6B6B;
+    --kimi-dark: #FF5252;
     --bg-main: #F8F9FF;
     --bg-card: #FFFFFF;
     --text-primary: #2D3436;
@@ -184,7 +186,7 @@ body {
 .generate-btn {
     width: 100%;
     padding: 16px;
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--kimi) 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -196,7 +198,7 @@ body {
 }
 
 .generate-btn:hover {
-    background: var(--primary-dark);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--kimi-dark) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
 }
@@ -219,7 +221,7 @@ body {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    background: linear-gradient(90deg, var(--primary) 0%, var(--kimi) 100%);
     width: 0%;
     transition: width 0.3s;
 }
@@ -275,12 +277,23 @@ body {
 }
 
 .toolbar-btn:hover:not(:disabled) {
-    background: var(--primary);
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .toolbar-btn:disabled {
     background: var(--text-light);
     cursor: not-allowed;
+    transform: none;
+}
+
+/* 特定按钮样式 */
+.pptx-btn {
+    background: var(--accent);
+}
+
+.kimi-btn {
+    background: linear-gradient(135deg, var(--kimi) 0%, #FF8E53 100%);
 }
 
 /* 预览区 */
@@ -413,5 +426,10 @@ body {
     .toolbar {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .toolbar-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }

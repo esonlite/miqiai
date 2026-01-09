@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miqi AI - 免费AI智能PPT生成器</title>
+    <title>Miqi AI - 免费AI智能PPT生成器 (Kimi增强版)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header class="banner">
         <div class="banner-content">
             <img src="images/logo.png" alt="Miqi AI" class="logo" onerror="this.style.display='none'">
-            <div class="version-badge">v3.1.0</div> <!-- ✅ 更新版本号 -->
-            <p class="subtitle">💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
+            <div class="version-badge">v3.1.1 (Kimi增强版)</div>
+            <p class="subtitle">💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体 + Kimi AI</p>
             <div class="status-indicator">
                 <span class="status-dot" id="statusDot"></span>
                 <span class="status-text" id="statusText">连接中...</span>
@@ -41,7 +41,7 @@
         </section>
 
         <button id="generateBtn" class="generate-btn">
-            🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）
+            🎯 立即生成PPT（Miqi AI 四层智能体 + Kimi AI）
         </button>
 
         <section class="card">
@@ -69,7 +69,8 @@
                         <!-- ✅ 按钮保留，由 JS 控制启用/禁用 -->
                         <button id="copyBtn" class="toolbar-btn" disabled>📋 复制</button>
                         <button id="downloadMdBtn" class="toolbar-btn" disabled>💾 下载MD</button>
-                        <button id="downloadPptxBtn" class="toolbar-btn pptx-btn" disabled>🎯 下载PPTX</button>
+                        <button id="downloadPptxBtn" class="toolbar-btn pptx-btn" disabled>🎯 本地PPTX</button>
+                        <button id="downloadKimiPptxBtn" class="toolbar-btn kimi-btn" disabled>🤖 KimiPPTX</button>
                     </div>
                 </div>
             </div>
@@ -90,7 +91,7 @@
                 <button class="footer-btn" onclick="showHelp()">❓ 帮助</button>
             </div>
         </div>
-        <div class="developer-info">💝 蕊蕊是乔麦的小宝贝</div>
+        <div class="developer-info">开发者:乔麦 | 技术: Miqi AI + Kimi AI</div>
     </footer>
 
     <div id="modal" class="modal">

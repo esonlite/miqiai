@@ -14,9 +14,9 @@ function closeModal() {
 function showAbout() {
     document.getElementById('modalBody').innerHTML = `
         <h3>关于 Miqi AI</h3>
-        <p>💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体</p>
-        <p>版本：v3.1（无状态同步版）</p>
-        <p>技术栈：Flask + JavaScript + python-pptx + AI Agents</p>
+        <p>💡 一句话生成顶级PPT | 完全免费 | 四层AI智能体 + Kimi AI</p>
+        <p>版本：v3.1（Kimi增强版）</p>
+        <p>技术栈：Flask + JavaScript + python-pptx + AI Agents + Kimi API</p>
         <p>开发者：乔麦</p>
     `;
     document.getElementById('modal').style.display = 'block';
@@ -29,8 +29,10 @@ function showHelp() {
             <li>在输入框中描述你的PPT需求（越详细越好）</li>
             <li>点击【立即生成PPT】开始生成</li>
             <li>生成完成后可预览、复制或下载</li>
-            <li>MD 文件可用 WPS AI / Gamma / MindShow 等工具转 PPT</li>
-            <li>PPTX 文件已包含配图建议和图表占位符</li>
+            <li>📋 复制：复制Markdown内容到剪贴板</li>
+            <li>💾 下载MD：下载Markdown文件</li>
+            <li>🎯 本地PPTX：使用本地引擎生成PPTX（快速）</li>
+            <li>🤖 KimiPPTX：通过Kimi AI智能生成PPTX（更专业）</li>
         </ul>
     `;
     document.getElementById('modal').style.display = 'block';
@@ -44,6 +46,7 @@ function clearAll() {
     document.getElementById('copyBtn').disabled = true;
     document.getElementById('downloadMdBtn').disabled = true;
     document.getElementById('downloadPptxBtn').disabled = true;
+    document.getElementById('downloadKimiPptxBtn').disabled = true;
     resetProgress();
     currentMarkdown = '';
     currentTitle = '';
@@ -84,7 +87,7 @@ async function startGeneration() {
         return;
     }
     if (input.length < 5) {
-        showNotification('⚠️ 输入太短', '请至少输入 5 个字，例如：“做一个AI介绍PPT”');
+        showNotification('⚠️ 输入太短', '请至少输入 5 个字，例如："做一个AI介绍PPT"');
         inputElement.focus();
         return;
     }
@@ -94,7 +97,7 @@ async function startGeneration() {
     generateBtn.textContent = '🔄 生成中...';
 
     resetProgress();
-    updateProgress('🔍 Director 正在分析需求...', 10, '🔍');
+    updateProgress('🔍 Director 正在分析需求...请耐心等待1-3分钟...', 10, '🔍');
 
     try {
         // 第一步：获取 Markdown 内容
@@ -124,11 +127,13 @@ async function startGeneration() {
         document.getElementById('copyBtn').disabled = false;
         document.getElementById('downloadMdBtn').disabled = false;
         document.getElementById('downloadPptxBtn').disabled = false;
+        document.getElementById('downloadKimiPptxBtn').disabled = false;
 
         updateProgress('✅ 生成完成', 100, '✅');
 
         // 提示成功
-        showNotification('🎉 生成成功', `《${title}》已生成！\n\n✅ Markdown 可复制/下载\n✅ 点击【🎯 下载PPTX】获取精美演示文稿`);
+        showNotification('🎉 生成成功', 
+            `《${title}》已生成！\n\n✅ Markdown 可复制/下载\n✅ 🎯 本地PPTX：快速生成\n✅ 🤖 KimiPPTX：更专业的AI生成`);
 
     } catch (error) {
         console.warn('生成失败:', error.message);
@@ -138,7 +143,7 @@ async function startGeneration() {
     } finally {
         const generateBtn = document.getElementById('generateBtn');
         generateBtn.disabled = false;
-        generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体 + 配图 + 图表）';
+        generateBtn.textContent = '🎯 立即生成PPT（Miqi AI 四层智能体 + Kimi AI）';
     }
 }
 
@@ -168,7 +173,7 @@ function downloadMarkdown() {
     URL.revokeObjectURL(url);
 }
 
-// ✅ 关键修改：PPTX 下载基于已生成的 Markdown（不再传 prompt）
+// 本地 PPTX 下载
 async function downloadPptx() {
     if (!currentMarkdown || !currentTitle) {
         showNotification('⚠️ 无法下载', '请先生成内容');
@@ -176,7 +181,7 @@ async function downloadPptx() {
     }
 
     try {
-        // 调用新的 PPTX 接口，传入 markdown 和 title
+        // 调用本地 PPTX 接口
         const response = await fetch(`${API_BASE_URL}/api/generate/pptx`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -211,6 +216,66 @@ async function downloadPptx() {
     }
 }
 
+// Kimi PPTX 下载
+async function downloadKimiPptx() {
+    if (!currentMarkdown || !currentTitle) {
+        showNotification('⚠️ 无法下载', '请先生成内容');
+        return;
+    }
+
+    // 确认提示
+    if (!confirm('🤖 使用 Kimi AI 生成更专业的 PPTX\n\n⚠️ 注意：\n• 需要额外调用 Kimi API\n• 生成时间可能较长（30-60秒）\n• 需要配置 Kimi API Key\n\n是否继续？')) {
+        return;
+    }
+
+    try {
+        updateProgress('🤖 Kimi AI 正在分析内容...', 20, '🤖');
+        
+        // 调用 Kimi PPTX 接口
+        const response = await fetch(`${API_BASE_URL}/api/generate/pptx/kimi`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                markdown: currentMarkdown,
+                title: currentTitle
+            })
+        });
+
+        if (response.ok && response.headers.get('content-type')?.includes('presentation')) {
+            updateProgress('✅ Kimi PPTX 生成完成！', 100, '✅');
+            
+            const blob = await response.blob();
+            const safeTitle = currentTitle.replace(/[<>:"/\\|?*]/g, '_');
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeTitle}_kimi.pptx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('🎉 Kimi PPTX 生成成功', '已下载由 Kimi AI 生成的更专业 PPTX 文件！');
+        } else {
+            let errorMsg = 'Kimi PPTX 生成失败';
+            try {
+                const err = await response.json();
+                errorMsg = err.error || errorMsg;
+                if (errorMsg.includes('Kimi API Key')) {
+                    errorMsg += '\n\n请检查：\n1. Railway 环境变量是否设置 KIMI_API_KEY\n2. Kimi API Key 是否有效';
+                }
+            } catch (e) { /* ignore */ }
+            
+            updateProgress('❌ Kimi 生成失败', 0, '❌');
+            showNotification('❌ Kimi 下载失败', errorMsg);
+        }
+    } catch (error) {
+        console.error('Kimi PPTX 下载错误:', error);
+        updateProgress('❌ 网络错误', 0, '❌');
+        showNotification('❌ 网络错误', '请检查网络或稍后重试');
+    }
+}
+
 // ========== 事件绑定 ==========
 document.addEventListener('DOMContentLoaded', () => {
     // 快速模板
@@ -229,8 +294,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 下载 MD
     document.getElementById('downloadMdBtn').addEventListener('click', downloadMarkdown);
 
-    // 下载 PPTX
+    // 下载本地 PPTX
     document.getElementById('downloadPptxBtn').addEventListener('click', downloadPptx);
+
+    // 下载 Kimi PPTX
+    document.getElementById('downloadKimiPptxBtn').addEventListener('click', downloadKimiPptx);
 
     // 服务状态检测
     const statusDot = document.getElementById('statusDot');
